@@ -1,0 +1,204 @@
+//Para parar o IIS quando estiver usando o wamp
+net stop WAS
+
+//Configurações do Apache
+No windows não é automático a inicialização do WAMP. Para startar os serviços (Web, Banco de Dados e PHP), basta clicar no wampmanager e aguardar o W que irá mudar de cor (Vermelho, Laranja e Verde).(Parado, Iniciando, Rodando)
+Este arquivo está com um atalho no Desktop e fica fisicamente em 
+E:\wamp64\wampmanager.exe
+---------------------------
+Em E:\wamp64\bin\apache\apache2.4.39\conf fica o arquivo httpd.conf que é a configuração do Apache.
+---------------------------
+Não usar em produção
+; Default Value: E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED
+; Development Value: E_ALL
+; Production Value: E_ALL & ~E_DEPRECATED & ~E_STRICT
+; http://php.net/error-reporting
+error_reporting = E_ALL
+---------------------------
+Editor como o Visual Studio para PHP
+* NetBeans
+---------------------------
+git - versionamento
+git --version
+git config --global user.name "Rogerio Picilli"
+git config --global user.email "rogerio@docs.com.br"
+git config --list
+
+CRIANDO UM REPOSITORIO
+Ir para o diretório do projeto, no caso modulogit em e:\
+git init   'Criou o repositorio localmente
+
+git status 'Mostra a situacao dos arquivos
+git add -A 'Comeca a monitorar todos os arquivos que ainda não estão monitorados
+git commit -m "Primeiro Commit" 'Começa o monitoramento do projeto, grava na verdade
+git log  'Lista todos os commits
+
+Se não der o commit as modificações ficam no meu computador apenas
+
+git commit -m "Criado arquivos do sistema e modificado o README.md"
+git branch   'qual branch nos estamos
+
+--------------------------------------
+REMOVER O QUE FOI FEITO POR ULTIMO
+
+git reset --soft ou --mixed ou --hard mais o id do commit que quer que fique ativo
+
+E:\wamp64\www\modulogit>git log
+commit 4fef1693b42d4177d285d28f91f4a45381a0c94b (HEAD -> master)
+Author: Rogerio Picilli <rogerio@docs.com.br>
+Date:   Fri Oct 18 12:33:30 2019 -0300
+
+    Criado arquivos do sistema e modificado o README.md
+
+commit d5d58a86e76f346c19200ddb9b53a2c6b70ff3dd
+Author: Rogerio Picilli <rogerio@docs.com.br>
+Date:   Fri Oct 18 12:28:07 2019 -0300
+
+    Primeiro Commit
+
+
+git reset --hard d5d58a86e76f346c19200ddb9b53a2c6b70ff3dd
+vai voltar para o primeiro commit
+
+
+CRIANDO UM NOVO BRANCH
+git branch teste
+
+MUDANCO PARA UM BRANCH
+git checkout teste
+
+QUANTO SE CRIA UM BRANCH ELE FICA IGUAL AO QUE VOCÊ ESTAVA QUANDO O CRIOU
+Depois de mudar de branch com o checkout tudo o que se faz só ocorre neste branch
+
+Mudei e crie uns arquivos e fiz o
+git commit -am "Testando o novo branch"
+
+ANTES DE COMITAR QUERO VER O QUE FOI MODIFICADO
+git diff
+
+QUAIS OS ARQUIVOS QUE FORAM MODIFICADOS
+git diff --name-only
+
+PARA VER AS MODIFICAÇÕES DE APENAS UM ARQUIVO
+git diff README.md
+
+PARA DESCONSIDERAR AS MODIFICAÇÕES DE APENAS UM ARQUIVO
+git checkout HEAD -- style.css    'volta para a situação do style antes das modificação. HEAD pega o branch que está sendo usado.
+
+URL DO NOSSO  REPOSITORIO NO GITHUB
+https://github.com/RogerioPicilli/modulogit.git
+
+CRIAÇÃO DO REPOSITORIO REMOTO
+$ ssh-keygen -t rsa -b 4096 -C "rogerio@docs.com.br"
+Generating public/private rsa key pair.
+Enter file in which to save the key (/c/Users/rogerio/.ssh/id_rsa):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /c/Users/rogerio/.ssh/id_rsa.
+Your public key has been saved in /c/Users/rogerio/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:KX+Gz6EQDCrkZ08rCLhYmYGmV11T2qJmbbK4DSxe2r8 rogerio@docs.com.br
+The key's randomart image is:
++---[RSA 4096]----+
+|        o..      |
+| .   . . +       |
+|.o. o . o .      |
+|*  * o o o       |
+|=.*o .O S        |
+|o=+.o+.B .       |
+|o...=oo o +      |
+| . =.+ . * .     |
+|  o o.E.. o      |
++----[SHA256]-----+
+
+ENVIANDO PARA REPOSITORIO REMOTO
+
+…or push an existing repository from the command line
+git remote add origin https://github.com/RogerioPicilli/modulogit.git
+git push -u origin master
+
+git remote    'mostra o repositorio remoto
+
+PEGAR UM PROJETO LA NO GITHUB
+git clone git://github.com/rogeriopicilli/projetoz.git
+
+SETAR O URL TO GIT
+git remote set-url origin https://github.com/rogeriopicilli/projetoz.git
+
+*****************************************************************************************
+01 - Criar um repositorio no GitHub public com readme
+02 - Trazer para o computador local clicar em Clone or download
+03 - Copiar o link que é  mostrado
+04 - Ir para o pc local e preferencialmente usar o NetBeans
+05 - Selecionar Equipe/Team no menu Git/Clonar
+06 - Colar o link no URL do Repositorio, fornecer o usuario e senha / Next
+07 - Seleciona o Branch / Ramificação / Next
+08 - Selecionar o local no computador local 
+09 - Clicar em criar projeto
+10 - PHP / Next
+11 - Nomear o projeto / Next
+12 - Finalizar
+Tudo o que precisa já está criado so falta trazer o que está la no GitHub
+13 - Botão Direito em Projeto / Controle de Versão / Inicializar Repositorio Git / OK
+Os nomes dos arquivo poderão serem mostrados em 3 cores diferentes:
+   Verde	= Adicionado ao projeto
+   Azul		= Foi modificado
+   Preto	= Está tudo commitado
+14 - Para trazer os arquivo remotos, Botão Direito no Projeto/Git/Remoto/Puxar (Pull)
+15 - Confirmar a URL e Usuário / Next
+16 - Seleciona o branch / Finalizar
+17 - Para enviar os arquivo locais para o remoto
+18 - BT (botão direito no projeto) / Git / Fazer Commit
+19 - Comentar as alteração se desejar / Fazer Commit
+20 - Se perguntar definir o usuário atual como sendo o padrão / Yes(Sim)
+21 - Para efetivar fazer um push BT / Git / Remoto / Enviar (Push)
+Tudo já deve estar em ambos os locais Remoto e meu PC
+*****************************************************************************************
+Alterando-se o arquivo localmente
+Foi modificado o arquivo Index.php
+Logo depois de ser modificado o arquivo index.php ele ficará Azulno NetBeans indicando
+que existe uma modificação no arquivo que está sendo monitorado
+01 - BT (botão direito no projeto) / Git / Fazer Commit / Se desejar Comentar / Fazer Commit
+02 - A cor dos arquivos ficarão preta
+03 - Para efetivar fazer um push BT / Git / Remoto / Enviar (Push) / Próximo / Finalizar
+/*******************************************************************************************/
+TEMPLATES
+---------
+/*******************************************************************************************/
+JSON
+Se precisar formatar para ler com mais facilidade existem serviços on line. Um deles é o
+www.jsoneditoronline.org
+/*******************************************************************************************/
+Composer
+No prompt do DOS como administrador
+url = getcomposer.org
+url = packgist.org   = tem todas as libs que pode ser usado com o composer
+Procurar por download manual
+Clicar em Lastes Snapshot - abaixa a última versão
+Mudar para o diretório do projeto
+//->Copiar para o diretório do projeto o arquivo baixado (composer.phar)
+//->Criar no diretório do projeto um arquivo denominado composer.json)
+Por exemplo para instalar o monolog as informações estão no url packgist.org
+composer require monolog/monolog  -> Este comando deve ser executado dentro do dir do projeto
+
+Para atulizar usar o comando
+composer update
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

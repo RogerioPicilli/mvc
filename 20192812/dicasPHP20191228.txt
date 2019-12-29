@@ -1,0 +1,317 @@
+
+require config.php
+
+if(isset($_POST['valor']) && !empty($_POST['valor']) == false) {
+$tipo = addslash($_POST['tipo']));
+
+Mudando , para .
+$val = str_replace(",",".",$_POST['valor']);
+
+Certificando que é valor
+$val = floatval($val);
+
+$sql = $pdo->prepare("INSERT INTO historico (idconta, tipo, valor) 
+                      VALUES (:id, :tipo, :valor)");
+$sql->bindValue(":id", $_SESSION['banco']);
+$sql->bindValue(":tipo", $tipo);
+$sql->bindValue(":valor", $val);
+$sql->execute();
+
+header("Location: index.php);
+---------------------------------------------------------------------------------------
+Arquivo config.php
+try {
+   $pdo = new PDO("mysql:dbname=db_teste;host=localhost","root", "");
+} catch(PDOException $e) {
+   echo "ERRO: ".$e->getMessage();
+   exit;
+}
+---------------------------------------------------------------------------------------
+Atualizando saldo baseado na operaçao 0 = Depósito  1 = Retirada
+if($tipo == '0') {
+   $sql = $pdo->prepare("UPDATE contas SET saldo = saldo + :valor WHERE id = :id");
+   $sql.bindValue(":valor", $valor);
+   $sql.bindValue(":id", $_SESSION['banco']);
+   $sql.execute();
+} else {
+   $sql = $pdo->prepare("UPDATE contas SET saldo = saldo - :valor WHERE id = :id");
+   $sql.bindValue(":valor", $valor);
+   $sql.bindValue(":id", $_SESSION['banco']);
+   $sql.execute();
+}
+---------------------------------------------------------------------------------------
+Permissoes
+Campos da tabela Usuarios
+email, senha, nome, permissoes tipo texto
+Conteudo do campo permissoes: add,edit,del,secret,print
+
+No php
+Arquivo Login.php
+=================
+session_start();
+require 'config.php';
+require 'classes/usuarios.class.php';
+
+$_SESSION['lg'] = '';  //vai forcar o login
+
+if(!empty($_POST['email'])) {
+   $email = addslashes($_POST['email']);
+   $senha = md5(addslashes($_POST['senha']));
+   
+   $usuario = new Usuarios($pdo);
+   if($usuario->login($email, $senha)) {
+      header("Location: index.php");
+      exit;
+   } else {
+     echo "Usuário ou Senha inválidos");
+   }
+}
+
+<form method="POST">
+   Email
+   input type="email" name="email"
+
+   Senha
+   input type="password" name="senha"
+</form>
+
+Arquivo Index.php
+=================
+<?php
+
+session_start();
+require 'config.php';
+require 'classes/usuarios.class.php';
+require 'classes/documentos.class.php;
+
+if(!isset($_SESSION['logado'])) {
+   header("Location: login.php");
+   exit;
+}
+
+$usuario = new Usuarios($pdo);
+$usuario->setUsuario($_SESSION['logado']);
+$documentos = new Documentos($pdo);
+$listaDocumentos = $documentos->getDocumentos();
+
+?>
+
+<h1>Sistema</h1>
+//Permissoes
+//<?php print_r($usuario->getPermissoes());
+
+<?php if($usuario->temPermissao("ADD")): ?>
+    <a href="">Adicionar Documentos</a>
+<?php endif; ?>
+
+<table>
+   <tr>
+       <th>Nome do arquivo</th>
+       <th>Acoes</th>
+   </tr>
+
+   <?php foreach($listaDocumentos as $item): ?>
+
+   <tr>
+       <td><?php echo utf8_encode($item['titulo']);</td>
+       <td>
+          <a href="">Editar</a>
+          <a href="">Excluir</a>
+       </td>
+   </tr>
+
+   <?php endforeach; ?> 
+</table>
+
+
+Arquivo usuarios.class.php
+==========================
+class Usuarios {
+
+    private $pdo;
+    private $id;
+    private $permissoes;
+
+    public function __contruct($pdo) {
+	$this->pdo = $pdo;
+    }
+    
+    public function login($email, $senha) {
+	$sql = "SELECT * FROM usuarios WHERE email = :email AND senha = :senha";
+        $sql = $this->pdo->prepare($sql);
+	$sql->bindValue(":email" = $email);
+	$sql->bindValue(":senha" = $senha);
+	$sql->execute();
+
+        if($sql->rowCount() > 0) {
+	   $sql = $sql->fetch();
+           $_SESSION['logado'] = $sql['id']; 
+           return true;
+        } else {
+	   return false;
+	}
+    }
+
+    public function setUsuario($id) {
+        $this->id = $id;
+
+	$sql = "SELECT * FROM usuarios WHERE id = :id";
+        $sql = $this->pdo->prepare($sql);
+	$sql->bindValue(":id" = $id);
+	$sql->execute();
+
+       if($sql->rowCount() > 0) {
+	   $sql = $sql->fetch();
+	   $this->permissoes = explode(',', $sql['permissoes']);
+	}
+    }
+
+    public function getPermissoes() {
+	return $this->permissoes;
+    }
+
+    public function temPermissao($p) {
+ 	if(in_array($p, $this->permission){
+	   return true; 
+	} else {
+	   return false;
+	}
+    }
+
+}
+  
+Arquivo documentos.class.php
+============================
+class Documentos {
+    private $pdo;
+
+    public function __contruct($pdo) {
+	$this->pdo = $pdo;
+    }    
+
+    public function getDocumentos {
+	$array = array();
+	$sql = "SELECT * FROM documentos";
+        $sql = $this->pdo->query($sql);
+
+	if($sql->rouCount() > 0) {
+	   $array = $sql->fetchAll();
+	}
+ 	return $array;
+    }
+
+}
+
+Arquivo paginaSecreta.php
+=========================
+Verificando se o danado tem direito de ver a página
+
+<?php
+session_start();
+require 'config.php';
+require 'classes/usuarios.class.php';
+require 'classes/documentos.class.php;
+
+if(!isset($_SESSION['logado'])) {
+   header("Location: login.php");
+   exit;
+}
+
+$usuario = new Usuarios($pdo);
+$usuario->setUsuario($_SESSION['logado']);
+
+if($usuario->temPermissao("SECRET") == false {
+   header("Location: index.php");
+   exit;
+}
+?>
+
+<h1>Página Secreta</h1>
+-------------------------------------------------------------------------------------
+Login unico - campo IP na tabela de  usuarios
+depois do login
+$ip = $_SERVER['REMOTE_ADDR'];
+$id = $sql['id'];
+
+$_SESSION['lg'] = $id;
+
+$sql = "UPDATE usuarios SET ip = : ip WHERE id = :id";
+$sql = $pdo->prepare($sql);
+$sql->bindValue(":ip" = $ip);
+$sql->bindValue(":id" = $id);
+$sql->execute();
+header("Location: index.php");
+exit;
+
+Arquivo paginaSecreta.php
+=========================
+<?php
+
+session_start();
+require 'config.php';
+
+if(!isset($_SESSION['lg'])) {
+   header("Location: login.php");
+   exit;
+} else { 
+   $id = $_SESSION['lg'];
+   $ip = $_SERVER['REMOTE_ADDR'];
+
+   $sql = "SELECT * FROM usuarios WHERE id = :id AND ip = :ip";
+   $sql = $pdo->prepare($sql);
+   $sql->bindValue(":id", $id)
+   $sql->bindValue(":ip", $ip)
+   $sql->execute();
+
+   if($sql->rowCount == 0) {
+      header("Location: login.php");
+      exit;
+   }
+}
+?>
+<h1>Conteudo da Página</h1>
+---------------------------------------------------------------------------------
+$ip = $_SERVER['REMOTE_ADDR'];
+$hora = date('H:i:s');
+echo "IP: " . $ip . " - " . $hora
+---------------------------------------------------------------------------------
+Contador de usuarios online
+<?php 	
+try {
+	$pdo = new PDO("mysql:dbname=projetok;host=localhost","root","");
+} catch (PODException $e) {
+	echo "Erro: " . $e->getMessage();
+	exit;
+}
+
+$ip = $_SERVER['REMOTE_ADDR'];
+$hora = date('H:i:s');
+
+$sql = $pdo->prepare("INSERT INTO acessos (ip, hora) VALUES (:ip, :hora)");
+$sql->bindValue(":ip", $ip);
+$sql->bindValue(":hora", $hora);
+$sql->execute();
+
+//Apaga tudo com mais do que o tempo usado na quety que é 5 minutos
+$sql = $pdo->prepare("DELETE FROM acessos WHERE hora < :hora");
+$sql->bindValue(":hora", date('H:i:s', strtotime("-2 minutes")));
+$sql->execute();
+
+//contar quantos usuarios tem online
+$sql = "SELECT * FROM acessos WHERE hora > :hora GROUP BY ip";
+$sql = $pdo->prepare($sql);
+$sql->bindValue(":hora", date('H:i:s', strtotime("-2 minutes")));
+$sql->execute();
+$qtde =  $sql->rowCount();
+
+echo "Existem " . $qtde . " usuários online";
+----------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
